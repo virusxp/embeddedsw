@@ -97,6 +97,13 @@ u32 XFsbl_SdInit(u32 DeviceFlags)
 	 */
 	XFsbl_MakeSdFileName(boot_file, MultiBootOffset, DrvNum);
 
+
+	/* DEBUG SECTION     */
+	FILINFO finfo;
+	rc = f_stat(boot_file,&finfo);
+	XFsbl_Printf(DEBUG_INFO,"f_stat for %s is: %d\n\r",boot_file,rc);
+	/* DEBUG SECTION END */
+
 	if(boot_file[0U]!=0U) {
 		rc = f_open(&fil, boot_file, (BYTE)FA_READ);
 		if (rc!=FR_OK) {
