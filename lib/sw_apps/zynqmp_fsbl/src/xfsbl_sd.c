@@ -68,7 +68,7 @@ u32 XFsbl_SdInit(u32 DeviceFlags)
 	u32 MultiBootOffset;
 	u32 DrvNum;
 
-	DrvNum = XFsbl_GetDrvNumSD(DeviceFlags);
+	DrvNum = 0;//= XFsbl_GetDrvNumSD(DeviceFlags);
 
 	/* Set logical drive number */
 	/* Register volume work area, initialize device */
@@ -92,17 +92,24 @@ u32 XFsbl_SdInit(u32 DeviceFlags)
          */
         MultiBootOffset = XFsbl_In32(CSU_CSU_MULTI_BOOT);
 
-	/**
-	 * Create boot image name
-	 */
-	XFsbl_MakeSdFileName(boot_file, MultiBootOffset, DrvNum);
-
-
 	/* DEBUG SECTION     */
+	XFsbl_MakeSdFileName(boot_file, MultiBootOffset, 0);
+	rc = disk_initialize(fatfs.pdrv);
+	XFsbl_Printf(DEBUG_INFO,"Status for disk %d intialize is: %d\n\r",fatfs.pdrv,rc);
+
+	rc = disk_status(0);
+	XFsbl_Printf(DEBUG_INFO,"Status for drive %d is: %d\n\r",0,rc);
+
 	FILINFO finfo;
 	rc = f_stat(boot_file,&finfo);
 	XFsbl_Printf(DEBUG_INFO,"f_stat for %s is: %d\n\r",boot_file,rc);
 	/* DEBUG SECTION END */
+
+
+	/**
+	 * Create boot image name
+	 */
+	XFsbl_MakeSdFileName(boot_file, MultiBootOffset, DrvNum);
 
 	if(boot_file[0U]!=0U) {
 		rc = f_open(&fil, boot_file, (BYTE)FA_READ);
